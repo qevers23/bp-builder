@@ -232,6 +232,7 @@ const BLANK_ROUND   = {rd:"", sw:"", tag:"", d:""};
 
 function blankState(){
   return {
+    title:"Pre-Game BP Template",
     groups:4, hitters:4, mins:11,
     flow:["","","",""],
     lineupBold:"", lineupItalic:"", groupsLede:"",
@@ -352,7 +353,7 @@ function render(){
     </tr>`).join("");
 
   document.getElementById("sheet").innerHTML = `
-    <h1>Pre-Game BP Template</h1>
+    <h1>${ed("title", S.title, "Sheet title", "")}</h1>
     <p class="sub">${S.groups} groups &nbsp;·&nbsp; ${S.hitters} hitters per group &nbsp;·&nbsp; ${S.mins} minutes per rotation</p>
     <div class="goldrule"></div>
 
