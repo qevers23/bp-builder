@@ -2,6 +2,8 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pre-Game BP Builder</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap">
 <style>
   :root{
@@ -216,7 +218,8 @@
     <label class="f">Min/rotation <input class="num" id="nMins" type="number" min="1" max="60" value="11"></label>
     <label class="f">Cage columns <input class="num" id="nCols" type="number" min="1" max="5" value="3"></label>
     <label class="f">Drills/column <input class="num" id="nDrills" type="number" min="1" max="8" value="4"></label>
-    <button id="printBtn">Print / PDF</button>
+    <button id="pdfBtn">Save PDF</button>
+    <button id="printBtn">Print</button>
     <button id="clearBtn">Clear sheet</button>
     <span class="hint" id="hint"></span>
   </div>
@@ -550,7 +553,51 @@ document.getElementById("nDrills").oninput = e=>{      // sets every column at o
   save(); render();
   document.getElementById("nDrills").focus();
 };
-document.getElementById("printBtn").onclick = ()=>window.print();
+document.getElementById("printBtn").onclick = ()=>{
+  document.title = LIB.plans[LIB.current].name;   // names the browser's own PDF
+  window.print();
+  setTimeout(()=>{ document.title = "Pre-Game BP Builder"; }, 1000);
+};
+
+/* One-click PDF: capture the sheet exactly as it looks in the builder and
+   drop it on a Letter page. Image-based, so text isn't selectable -- the
+   Print button is the route to a text PDF. */
+document.getElementById("pdfBtn").onclick = async e=>{
+  const btn = e.target, sheet = document.getElementById("sheet");
+  const wasEditing = document.body.classList.contains("editing");
+  btn.disabled = true; btn.textContent = "Working...";
+  document.body.classList.remove("editing");        // drop underlines and grey prompts
+  document.querySelectorAll(".rowbtn,.del").forEach(n => n.style.visibility = "hidden");
+  try{
+    const canvas = await html2canvas(sheet, {scale:2, backgroundColor:"#FFFFFF", useCORS:true});
+    const pdf = new window.jspdf.jsPDF({unit:"in", format:"letter", orientation:"portrait"});
+    const margin = 0.4, pw = 8.5 - margin*2, ph = 11 - margin*2;
+    const w = pw, h = canvas.height * (pw / canvas.width);
+    if(h <= ph){
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", margin, margin, w, h);
+    }else{
+      // taller than one page: slice the capture across pages at the same scale
+      const pxPerPage = Math.floor(canvas.width * (ph / pw));
+      for(let y = 0, page = 0; y < canvas.height; y += pxPerPage, page++){
+        const slice = document.createElement("canvas");
+        slice.width = canvas.width;
+        slice.height = Math.min(pxPerPage, canvas.height - y);
+        slice.getContext("2d").drawImage(canvas, 0, y, canvas.width, slice.height,
+                                                 0, 0, canvas.width, slice.height);
+        if(page) pdf.addPage();
+        pdf.addImage(slice.toDataURL("image/jpeg", 0.95), "JPEG", margin, margin,
+                     w, slice.height * (pw / canvas.width));
+      }
+    }
+    const name = LIB.plans[LIB.current].name.replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"_") || "BP_plan";
+    pdf.save(name + ".pdf");
+    flag("PDF saved");
+  } finally {
+    document.querySelectorAll(".rowbtn,.del").forEach(n => n.style.visibility = "");
+    if(wasEditing) document.body.classList.add("editing");
+    btn.disabled = false; btn.textContent = "Save PDF";
+  }
+};
 
 document.body.classList.add("editing");
 renderPlanList();
