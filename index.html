@@ -9,7 +9,7 @@
     --rule:#E5E1D8; --line:#C9C4B9; --muted:#7A756B; --ghost:#B4AFA4;
     --sans:'Lato','Gotham','Segoe UI',system-ui,sans-serif;
   }
-  *{box-sizing:border-box}
+  *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   html,body{margin:0}
   body{background:#EDEAE3;color:var(--ink);font-family:var(--sans)}
 
@@ -129,13 +129,66 @@
     .strip .tag{justify-content:flex-start;padding:8px 14px}
     td.rd,td.sw{width:auto}
   }
+  /* Print: hold the on-screen two-column sheet and scale it to Letter.
+     These rules come after the width breakpoints on purpose -- at 8.5in the
+     820px mobile stack would otherwise fire and print a single column. */
   @media print{
-    body{background:#fff}
+    @page{size:letter portrait;margin:.4in}
+    html,body{background:#fff}
     .bar{display:none}
-    .sheet{margin:0;max-width:none;padding:0}
+    .sheet{margin:0;max-width:none;width:100%;padding:0}
     [data-p]{border-bottom:0!important;background:none!important}
     [data-p]:empty::before{content:""!important}
     .rowbtn,.del{display:none!important}
+
+    h1{font-size:37px}
+    .sub{font-size:9.5px;margin-top:6px;letter-spacing:.15em}
+    .goldrule{height:3px;margin:9px 0}
+
+    .strip{grid-template-columns:118px 1fr!important;margin-bottom:5px;border-width:1.5px}
+    .strip .tag{font-size:8px;padding:7px 4px!important;justify-content:center!important}
+    .strip .body{padding:6px 10px}
+    .strip.flow .body{font-size:12px;line-height:1.4}
+    .strip.lineup .body{font-size:10px;line-height:1.4}
+
+    .cols{grid-template-columns:2.1in 1fr!important;margin-top:9px}
+    .left{padding:0 16px 0 0!important;border-right:1.5px solid var(--ink)!important;border-bottom:0!important}
+    .right{padding:0 0 0 16px!important}
+    h2{font-size:15.5px;margin-bottom:4px;padding-bottom:3px;border-bottom-width:2px}
+    .lede{font-size:9.5px;line-height:1.45;margin:6px 0 8px}
+
+    .grp{padding:6px 0}
+    .chip{font-size:7.5px;padding:3px 7px}
+    .starts{font-size:7px}
+    .grp h3{font-size:13px}
+    .grp p{font-size:9.5px;line-height:1.45;margin-top:5px}
+    .callout{padding:9px 11px;margin-top:8px}
+    .callout h4{font-size:8.5px;margin-bottom:6px}
+    .callout .ph{font-size:9.5px;line-height:1.5;min-height:56px}
+
+    .drills{grid-template-columns:repeat(3,1fr)!important;gap:12px;margin:8px 0 10px}
+    .drillcol h4{font-size:11px}
+    .drillcol .cap{height:2.5px;margin-bottom:8px}
+    .drill{margin-bottom:7px}
+    .dhead{margin-bottom:2px}
+    .dhead .lab{font-size:7.5px}
+    .dhead .swlab{font-size:6.5px}
+    .dhead .swval{font-size:9px}
+    .drill .n{font-size:10px;line-height:1.2}
+    .drill .b{font-size:9px;line-height:1.3}
+
+    thead th{font-size:7.5px;padding:0 8px 4px 0}
+    tbody td{padding:8px 8px 8px 0;font-size:9.5px;line-height:1.45}
+    td.idx{font-size:16px;width:22px}
+    td.rd{font-size:10px;width:1.28in!important}
+    td.sw{width:.86in!important}
+    td.sw .big{font-size:10px}
+    td.sw .tagline{font-size:7px}
+    td.what{padding-right:0}
+
+    .notes{padding:10px 12px;margin-top:7px;border-width:1.5px}
+    .notes .lbl{font-size:7.5px;padding:4px 8px;margin-bottom:9px}
+    .notes .pad{font-size:9.5px;line-height:1.6;min-height:110px}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style></head>
