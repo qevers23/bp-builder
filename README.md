@@ -9,7 +9,7 @@ of groups, hitters per group, and minutes per rotation. Save as many plans as yo
 under their own names, switch between them, and print the finished sheet.
 
 Plans save in your own browser on your own machine -- nothing is uploaded and nobody else
-sees what you type. Clearing your browser data clears your plans, so use **Export** to keep
-a backup or to send a plan to another coach, and **Import** to load one you were sent.
+sees what you type. Clearing your browser data clears your plans, so save a PDF of any plan
+you want to keep or hand to another coach.
 
 Single file, no build step. `index.html` is the whole thing.

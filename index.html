@@ -206,9 +206,6 @@
     <button id="dupBtn">Duplicate</button>
     <button id="renameBtn">Rename</button>
     <button id="delBtn">Delete</button>
-    <button id="exportBtn">Export</button>
-    <button id="importBtn">Import</button>
-    <input type="file" id="importFile" accept=".json,application/json" hidden>
     <span class="saved" id="saved"></span>
   </div>
   <div class="row">
@@ -486,34 +483,6 @@ document.getElementById("clearBtn").onclick = ()=>{
   LIB.plans[LIB.current].state = blankState();
   S = LIB.plans[LIB.current].state;
   save(); render();
-};
-
-/* ---- export / import: how a staff passes a plan around ---- */
-document.getElementById("exportBtn").onclick = ()=>{
-  const cur = LIB.plans[LIB.current];
-  const blob = new Blob([JSON.stringify({kind:"bp-plan", name:cur.name, state:cur.state}, null, 2)],
-                        {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = cur.name.replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"_") + "_BP_plan.json";
-  a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
-};
-document.getElementById("importBtn").onclick = ()=>document.getElementById("importFile").click();
-document.getElementById("importFile").onchange = e=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const r = new FileReader();
-  r.onload = ()=>{
-    const obj = JSON.parse(r.result);
-    if(obj.kind !== "bp-plan") return alert("That file isn't a BP plan export.");
-    const id = newId();
-    LIB.plans[id] = {name: (obj.name || "Imported plan") + " (imported)", updated: Date.now(),
-                     state: Object.assign(blankState(), obj.state)};
-    switchTo(id);
-  };
-  r.readAsText(file);
-  e.target.value = "";
 };
 
 /* ============ sheet controls ============ */
