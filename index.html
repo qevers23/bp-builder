@@ -585,7 +585,7 @@ document.getElementById("pdfBtn").onclick = async e=>{
   btn.disabled = true; btn.textContent = "Working...";
   document.body.classList.remove("editing");        // drop underlines and grey prompts
   document.querySelectorAll(".rowbtn,.del").forEach(n => n.style.visibility = "hidden");
-  const target = sheet.getBoundingClientRect().width * (10.2 / 7.7);   // Letter, less margins
+  const target = sheet.getBoundingClientRect().width * (10.05 / 7.7);  // Letter less margins, with slack
   const grew = sheet.getBoundingClientRect().height < target;
   if(grew){ sheet.style.minHeight = target + "px"; document.body.classList.add("filling"); }
   try{
@@ -593,8 +593,8 @@ document.getElementById("pdfBtn").onclick = async e=>{
     const pdf = new window.jspdf.jsPDF({unit:"in", format:"letter", orientation:"portrait"});
     const margin = 0.4, pw = 8.5 - margin*2, ph = 11 - margin*2;
     const w = pw, h = canvas.height * (pw / canvas.width);
-    if(h <= ph){
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", margin, margin, w, h);
+    if(h <= ph * 1.02){
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", margin, margin, w, Math.min(h, ph));
     }else{
       // taller than one page: slice the capture across pages at the same scale
       const pxPerPage = Math.floor(canvas.width * (ph / pw));
@@ -602,6 +602,7 @@ document.getElementById("pdfBtn").onclick = async e=>{
         const slice = document.createElement("canvas");
         slice.width = canvas.width;
         slice.height = Math.min(pxPerPage, canvas.height - y);
+        if(slice.height < canvas.height * 0.02) break;   // don't emit a near-empty page
         slice.getContext("2d").drawImage(canvas, 0, y, canvas.width, slice.height,
                                                  0, 0, canvas.width, slice.height);
         if(page) pdf.addPage();
