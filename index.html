@@ -247,7 +247,7 @@ function applyAccent(hex){
   const L = lum(hex), r = document.documentElement.style;
   r.setProperty("--gold", hex);
   r.setProperty("--wash", mix(hex, .90));                 // faint tint behind THE FLOW
-  r.setProperty("--accent-on", L > .45 ? "#000000" : "#FFFFFF");
+  r.setProperty("--accent-on", L > .18 ? "#000000" : "#FFFFFF");  // WCAG crossover, not eyeball
   r.setProperty("--accent-lift", L < .30 ? mix(hex, .45) : hex);  // readable on the black boxes
   document.getElementById("accentPick").value = hex;
   document.querySelectorAll("#swatches .cswatch").forEach(b =>
