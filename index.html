@@ -112,6 +112,17 @@
               text-transform:uppercase;padding:6px 10px;display:inline-block;margin-bottom:14px}
   .notes .pad{font-size:13.5px;line-height:1.7;min-height:150px}
 
+  /* Fill the page: the sheet is wider than it is tall, so on paper the
+     left rail's timing box drops to the bottom of its column and the notes
+     box grows into the leftover height. Screen layout is untouched. */
+  body.filling .sheet,
+  body.filling .left,body.filling .right,body.filling .notes{display:flex;flex-direction:column}
+  body.filling .cols{flex:1;min-height:0}
+  body.filling .left .callout{margin-top:auto}
+  body.filling .notes{flex:1}
+  body.filling .notes .pad{flex:1;min-height:0}
+  body.filling .notes .lbl{align-self:flex-start}
+
   /* ---------------- editing ---------------- */
   [data-p]{outline:none}
   body.editing [data-p]{border-bottom:1px dashed rgba(255,163,0,.8);cursor:text}
@@ -146,7 +157,14 @@
     @page{size:letter portrait;margin:.4in}
     html,body{background:#fff}
     .bar{display:none}
-    .sheet{margin:0;max-width:none;width:100%;padding:0}
+    .sheet{margin:0;max-width:none;width:100%;padding:0;
+           min-height:10.2in;display:flex;flex-direction:column}
+    .cols{flex:1;min-height:0}
+    .left,.right,.notes{display:flex;flex-direction:column}
+    .left .callout{margin-top:auto}
+    .notes{flex:1}
+    .notes .pad{flex:1;min-height:0}
+    .notes .lbl{align-self:flex-start}
     [data-p]{border-bottom:0!important;background:none!important}
     [data-p]:empty::before{content:""!important}
     .rowbtn,.del{display:none!important}
@@ -567,6 +585,9 @@ document.getElementById("pdfBtn").onclick = async e=>{
   btn.disabled = true; btn.textContent = "Working...";
   document.body.classList.remove("editing");        // drop underlines and grey prompts
   document.querySelectorAll(".rowbtn,.del").forEach(n => n.style.visibility = "hidden");
+  const target = sheet.getBoundingClientRect().width * (10.2 / 7.7);   // Letter, less margins
+  const grew = sheet.getBoundingClientRect().height < target;
+  if(grew){ sheet.style.minHeight = target + "px"; document.body.classList.add("filling"); }
   try{
     const canvas = await html2canvas(sheet, {scale:2, backgroundColor:"#FFFFFF", useCORS:true});
     const pdf = new window.jspdf.jsPDF({unit:"in", format:"letter", orientation:"portrait"});
@@ -592,6 +613,7 @@ document.getElementById("pdfBtn").onclick = async e=>{
     pdf.save(name + ".pdf");
     flag("PDF saved");
   } finally {
+    sheet.style.minHeight = ""; document.body.classList.remove("filling");
     document.querySelectorAll(".rowbtn,.del").forEach(n => n.style.visibility = "");
     if(wasEditing) document.body.classList.add("editing");
     btn.disabled = false; btn.textContent = "Save PDF";
